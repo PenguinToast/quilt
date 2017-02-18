@@ -1,6 +1,7 @@
 package ssh
 
 import (
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"net"
@@ -224,7 +225,16 @@ func signerFromFile(file string) (ssh.Signer, error) {
 		return nil, err
 	}
 
-	key, err := ssh.ParsePrivateKey([]byte(fileStr))
+	// Parse the key to give a helpul error when it's encrypted.
+	keyBytes := []byte(fileStr)
+	block, _ := pem.Decode(keyBytes)
+	if block != nil && block.Headers["Proc-Type"] == "4,ENCRYPTED" {
+		return nil, errors.New("ssh: password protected keys are " +
+			"not supported, try adding the key to ssh-agent first using " +
+			"`ssh-add`")
+	}
+
+	key, err := ssh.ParsePrivateKey(keyBytes)
 	if err != nil {
 		return nil, err
 	}
