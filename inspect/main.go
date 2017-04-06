@@ -29,7 +29,7 @@ func Main(opts []string) int {
 
 	configPath := opts[0]
 
-	spec, err := stitch.FromFile(configPath, stitch.DefaultImportGetter)
+	spec, err := stitch.FromFile(configPath)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1

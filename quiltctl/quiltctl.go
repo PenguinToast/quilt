@@ -12,7 +12,6 @@ import (
 var commands = map[string]command.SubCommand{
 	"containers": command.NewContainerCommand(),
 	"daemon":     command.NewDaemonCommand(),
-	"get":        &command.Get{},
 	"inspect":    &command.Inspect{},
 	"logs":       command.NewLogCommand(),
 	"machines":   command.NewMachineCommand(),

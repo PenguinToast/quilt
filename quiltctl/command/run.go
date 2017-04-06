@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -75,16 +74,7 @@ var errNoCluster = errors.New("no cluster")
 // Run starts the run for the provided Stitch.
 func (rCmd *Run) Run() int {
 	stitchPath := rCmd.stitch
-	compiled, err := stitch.FromFile(stitchPath, stitch.DefaultImportGetter)
-	if err != nil && os.IsNotExist(err) && !filepath.IsAbs(stitchPath) {
-		// Automatically add the ".js" file suffix if it's not provided.
-		if !strings.HasSuffix(stitchPath, ".js") {
-			stitchPath += ".js"
-		}
-		compiled, err = stitch.FromFile(
-			filepath.Join(stitch.GetQuiltPath(), stitchPath),
-			stitch.DefaultImportGetter)
-	}
+	compiled, err := stitch.FromFile(stitchPath)
 	if err != nil {
 		// Print the stacktrace if it's an Otto error.
 		if ottoError, ok := err.(*otto.Error); ok {

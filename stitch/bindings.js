@@ -1,3 +1,39 @@
+const crypto = require('crypto');
+const fs = require('fs');
+const request = require('sync-request');
+const stringify = require('json-stable-stringify');
+const _ = require('underscore');
+
+// Functions ported over from Go.
+function hash(str) {
+    const shaSum = crypto.createHash('sha1');
+    shaSum.update(str);
+    return shaSum.digest('hex');
+}
+
+const githubCache = {};
+function githubKeys(user) {
+    if (user in githubCache) {
+        return githubCache[user];
+    }
+
+    const response = request('GET', `https://github.com/${user}.keys`);
+    if (response.statusCode >= 300) {
+        // Handle any errors.
+        throw `HTTP request for ${user}'s github keys failed with error ` +
+            `${response.statusCode}`;
+    }
+
+    const keys = response.getBody('utf8').trim().split('\n');
+    githubCache[user] = keys;
+
+    return keys;
+}
+
+function read(file) {
+    return fs.readFileSync(file, { encoding: 'utf8' });
+}
+
 // The default deployment object. createDeployment overwrites this.
 var deployment = new Deployment({});
 
@@ -45,7 +81,7 @@ function uniqueID() {
 function key(obj) {
     var keyObj = obj.clone();
     keyObj._refID = "";
-    return JSON.stringify(keyObj, omitSSHKey);
+    return stringify(keyObj, { replacer: omitSSHKey });
 }
 
 // setQuiltIDs deterministically sets the id field of objects based on
@@ -570,3 +606,35 @@ function Port(p) {
 }
 
 var PortRange = Range;
+
+function getDeployment() {
+    return deployment;
+}
+
+module.exports = {
+    Assertion,
+    Connection,
+    Container,
+    Deployment,
+    Image,
+    LabelRule,
+    Machine,
+    MachineRule,
+    Port,
+    PortRange,
+    Range,
+    Service,
+    between,
+    boxRange,
+    createDeployment,
+    deployment,
+    getDeployment,
+    enough,
+    githubKeys,
+    invariantType,
+    neighbor,
+    publicInternet,
+    reachable,
+    reachableACL,
+    read,
+};

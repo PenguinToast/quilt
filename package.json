@@ -1,0 +1,29 @@
+{
+  "name": "@quilt/core",
+  "version": "0.0.7",
+  "description": "PLACEHOLDER",
+  "main": "stitch/bindings.js",
+  "files": [
+    "stitch/bindings.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/quilt/quilt.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^3.18.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.3"
+  },
+  "scripts": {
+    "eslint": "eslint"
+  },
+  "dependencies": {
+    "json-stable-stringify": "^1.0.1",
+    "sync-request": "^4.0.1",
+    "underscore": "^1.8.3"
+  }
+}
