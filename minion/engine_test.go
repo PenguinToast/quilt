@@ -85,7 +85,7 @@ func TestContainerTxn(t *testing.T) {
 }
 
 func testContainerTxn(t *testing.T, conn db.Conn, spec string) {
-	compiled, err := stitch.FromJavascript(spec, stitch.DefaultImportGetter)
+	compiled, err := stitch.FromJavascript(spec)
 	assert.Nil(t, err)
 
 	var containers []db.Container
@@ -157,7 +157,7 @@ func TestConnectionTxn(t *testing.T) {
 }
 
 func testConnectionTxn(t *testing.T, conn db.Conn, spec string) {
-	compiled, err := stitch.FromJavascript(spec, stitch.DefaultImportGetter)
+	compiled, err := stitch.FromJavascript(spec)
 	assert.Nil(t, err)
 
 	var connections []db.Connection
@@ -199,8 +199,7 @@ func fired(c chan struct{}) bool {
 func TestPlacementTxn(t *testing.T) {
 	conn := db.New()
 	checkPlacement := func(spec string, exp ...db.Placement) {
-		compiled, err := stitch.FromJavascript(spec,
-			stitch.DefaultImportGetter)
+		compiled, err := stitch.FromJavascript(spec)
 		assert.Nil(t, err)
 
 		placements := map[db.Placement]struct{}{}
@@ -339,7 +338,7 @@ func TestPlacementTxn(t *testing.T) {
 }
 
 func checkImage(t *testing.T, conn db.Conn, spec string, exp ...db.Image) {
-	depl, err := stitch.FromJavascript(spec, stitch.DefaultImportGetter)
+	depl, err := stitch.FromJavascript(spec)
 	assert.NoError(t, err)
 
 	var images []db.Image

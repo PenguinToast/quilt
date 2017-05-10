@@ -611,6 +611,13 @@ function getDeployment() {
     return deployment;
 }
 
+// Reset global unique counters. Used only for unit testing.
+// TODO: Remove this when bindings code is cleaned up.
+function resetGlobals() {
+    uniqueIDCounter = 0;
+    labelNameCount = {};
+}
+
 module.exports = {
     Assertion,
     Connection,
@@ -637,4 +644,5 @@ module.exports = {
     reachable,
     reachableACL,
     read,
+    resetGlobals,
 };

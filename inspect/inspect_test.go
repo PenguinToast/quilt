@@ -30,9 +30,7 @@ func TestSlug(t *testing.T) {
 }
 
 func initSpec(src string) (stitch.Stitch, error) {
-	return stitch.FromJavascript(src, stitch.ImportGetter{
-		Path: "../specs",
-	})
+	return stitch.FromJavascript(src)
 }
 
 const testStitch = `var a = new Service("a", [new Container("ubuntu")]);

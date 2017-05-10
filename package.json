@@ -12,14 +12,19 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-subset": "^1.5.0",
     "eslint": "^3.18.0",
     "eslint-config-airbnb": "^14.1.0",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
-    "eslint-plugin-react": "^6.10.3"
+    "eslint-plugin-react": "^6.10.3",
+    "mocha": "^3.3.0",
+    "sinon": "^2.1.0"
   },
   "scripts": {
-    "eslint": "eslint"
+    "eslint": "eslint",
+    "mocha": "mocha"
   },
   "dependencies": {
     "json-stable-stringify": "^1.0.1",

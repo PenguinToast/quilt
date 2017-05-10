@@ -212,7 +212,7 @@ func TestACLs(t *testing.T) {
 }
 
 func prog(t *testing.T, code string) stitch.Stitch {
-	result, err := stitch.FromJavascript(code, stitch.DefaultImportGetter)
+	result, err := stitch.FromJavascript(code)
 	if err != nil {
 		t.Error(err.Error())
 		return stitch.Stitch{}

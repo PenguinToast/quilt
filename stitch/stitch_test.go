@@ -1,18 +1,12 @@
 package stitch
 
 import (
-	"bytes"
-	"fmt"
-	"io/ioutil"
-	"net/http"
+	"encoding/json"
 	"reflect"
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/quilt/quilt/util"
 )
 
 func TestMachine(t *testing.T) {
@@ -401,7 +395,7 @@ func TestLabel(t *testing.T) {
 		return foo.hostname();
 	})()`, expHostname)
 
-	expChildren := []string{"1.foo.q", "2.foo.q"}
+	expChildren := []interface{}{"1.foo.q", "2.foo.q"}
 	checkJavascript(t, `(function() {
 		var foo = new Service("foo",
 		[new Container("bar"), new Container("baz")]);
@@ -555,21 +549,8 @@ func TestCreateDeploymentNoArgs(t *testing.T) {
 
 func TestRunModule(t *testing.T) {
 	checkJavascript(t, `(function() {
-		module.exports = function() {}
+        return null;
 	})()`, nil)
-}
-
-func TestGithubKeys(t *testing.T) {
-	HTTPGet = func(url string) (*http.Response, error) {
-		resp := http.Response{
-			Body: ioutil.NopCloser(bytes.NewBufferString("githubkeys")),
-		}
-		return &resp, nil
-	}
-
-	checkJavascript(t, `(function() {
-		return githubKeys("username");
-	})()`, []string{"githubkeys"})
 }
 
 func TestQuery(t *testing.T) {
@@ -615,51 +596,22 @@ func TestMarshal(t *testing.T) {
 	assert.Equal(t, exp, actual)
 }
 
-func TestHash(t *testing.T) {
-	t.Parallel()
-
-	checkJavascript(t, `hash("foo");`, "0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33")
-	checkError(t, `hash();`, "RangeError: hash requires an argument")
-}
-
-func TestRead(t *testing.T) {
-	t.Parallel()
-
-	util.AppFs = afero.NewMemMapFs()
-	checkError(t, `read("foo");`, "StitchError: open foo: file does not exist")
-
-	util.WriteFile("foo", []byte("bar"), 0644)
-	checkJavascript(t, `read("foo");`, "bar")
-
-	checkError(t, `read();`, "RangeError: read requires an argument")
-}
+// TODO: Implement TestHash, TestRead, TestGithubKeys in Node.js.
 
 func checkJavascript(t *testing.T, code string, exp interface{}) {
-	resultKey := "result"
-
-	vm, err := newVM(ImportGetter{
-		Path: ".",
-	})
+	out, err := runJavascript("const result = " + code + ";JSON.stringify(result);")
 	if err != nil {
 		t.Errorf(`Unexpected error: "%s".`, err.Error())
 		return
 	}
 
-	exec := fmt.Sprintf(`exports.%s = %s;`, resultKey, code)
-	moduleVal, err := runSpec(vm, "<test_code>", exec)
+	var actual interface{}
+	err = json.Unmarshal(out, &actual)
 	if err != nil {
+		t.Errorf("NO: %s", string(out))
 		t.Errorf(`Unexpected error: "%s".`, err.Error())
 		return
 	}
-
-	actualVal, err := moduleVal.Object().Get(resultKey)
-	if err != nil {
-		t.Errorf(`Unexpected error retrieving result from VM: "%s".`,
-			err.Error())
-		return
-	}
-
-	actual, _ := actualVal.Export()
 	if !reflect.DeepEqual(actual, exp) {
 		t.Errorf("Bad javascript code: Expected %s, got %s.",
 			spew.Sdump(exp), spew.Sdump(actual))
@@ -667,9 +619,7 @@ func checkJavascript(t *testing.T, code string, exp interface{}) {
 }
 
 func checkError(t *testing.T, code string, exp string) {
-	_, err := FromJavascript(code, ImportGetter{
-		Path: ".",
-	})
+	_, err := FromJavascript(code)
 	if err == nil {
 		if exp != "" {
 			t.Errorf(`Expected error "%s", but got nothing.`, exp)
@@ -685,7 +635,7 @@ func queryChecker(
 	queryFunc func(Stitch) interface{}) func(*testing.T, string, interface{}) {
 
 	return func(t *testing.T, code string, exp interface{}) {
-		handle, err := FromJavascript(code, DefaultImportGetter)
+		handle, err := FromJavascript(code)
 		if err != nil {
 			t.Errorf(`Unexpected error: "%s".`, err.Error())
 			return
